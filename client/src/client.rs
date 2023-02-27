@@ -328,16 +328,16 @@ pub trait RpcApi: Sized {
     }
 
     fn get_block(&self, hash: &bitcoin::BlockHash) -> Result<Block> {
-        let hex: String = self.call("getblock", &[into_json(hash)?, 0.into()])?;
+        let hex: String = self.call("getblock", &[into_json(hash)?, false.into()])?;
         deserialize_hex(&hex)
     }
 
     fn get_block_hex(&self, hash: &bitcoin::BlockHash) -> Result<String> {
-        self.call("getblock", &[into_json(hash)?, 0.into()])
+        self.call("getblock", &[into_json(hash)?, false.into()])
     }
 
     fn get_block_info(&self, hash: &bitcoin::BlockHash) -> Result<json::GetBlockResult> {
-        self.call("getblock", &[into_json(hash)?, 1.into()])
+        self.call("getblock", &[into_json(hash)?, true.into()])
     }
     //TODO(stevenroose) add getblock_txs
 
@@ -666,6 +666,11 @@ pub trait RpcApi: Sized {
     ) -> Result<Vec<json::ImportMultiResult>> {
         let json_request = vec![serde_json::to_value(req)?];
         self.call("importdescriptors", handle_defaults(&mut [json_request.into()], &[null()]))
+    }
+
+    fn list_descriptors(&self, private: Option<bool>) -> Result<json::ListDescriptorsResult> {
+        let mut args = [opt_into_json(private)?];
+        self.call("listdescriptors", handle_defaults(&mut args, &[null()]))
     }
 
     fn set_label(&self, address: &Address, label: &str) -> Result<()> {
