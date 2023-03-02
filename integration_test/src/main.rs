@@ -445,16 +445,16 @@ fn test_get_connection_count(cl: &Client) {
 fn test_get_raw_transaction(cl: &Client) {
     let addr = cl.get_new_address(None, None).unwrap();
     let txid = cl.send_to_address(&addr, btc(1), None, None, None, None, None, None).unwrap();
-    let tx = cl.get_raw_transaction(&txid, None).unwrap();
-    let hex = cl.get_raw_transaction_hex(&txid, None).unwrap();
+    let tx = cl.get_raw_transaction(&txid).unwrap();
+    let hex = cl.get_raw_transaction_hex(&txid).unwrap();
     assert_eq!(tx, deserialize(&Vec::<u8>::from_hex(&hex).unwrap()).unwrap());
     assert_eq!(hex, serialize(&tx).to_hex());
 
-    let info = cl.get_raw_transaction_info(&txid, None).unwrap();
+    let info = cl.get_raw_transaction_info(&txid).unwrap();
     assert_eq!(info.txid, txid);
 
-    let blocks = cl.generate_to_address(7, &cl.get_new_address(None, None).unwrap()).unwrap();
-    let _ = cl.get_raw_transaction_info(&txid, Some(&blocks[0])).unwrap();
+    // let blocks = cl.generate_to_address(7, &cl.get_new_address(None, None).unwrap()).unwrap();
+    // let _ = cl.get_raw_transaction_info(&txid, Some(&blocks[0])).unwrap();
 }
 
 fn test_get_raw_mempool(cl: &Client) {

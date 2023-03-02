@@ -482,29 +482,26 @@ pub trait RpcApi: Sized {
 
     fn get_raw_transaction(
         &self,
-        txid: &bitcoin::Txid,
-        block_hash: Option<&bitcoin::BlockHash>,
+        txid: &bitcoin::Txid
     ) -> Result<Transaction> {
-        let mut args = [into_json(txid)?, into_json(false)?, opt_into_json(block_hash)?];
+        let mut args = [into_json(txid)?, into_json(false)?];
         let hex: String = self.call("getrawtransaction", handle_defaults(&mut args, &[null()]))?;
         deserialize_hex(&hex)
     }
 
     fn get_raw_transaction_hex(
         &self,
-        txid: &bitcoin::Txid,
-        block_hash: Option<&bitcoin::BlockHash>,
+        txid: &bitcoin::Txid
     ) -> Result<String> {
-        let mut args = [into_json(txid)?, into_json(false)?, opt_into_json(block_hash)?];
+        let mut args = [into_json(txid)?, into_json(false)?];
         self.call("getrawtransaction", handle_defaults(&mut args, &[null()]))
     }
 
     fn get_raw_transaction_info(
         &self,
-        txid: &bitcoin::Txid,
-        block_hash: Option<&bitcoin::BlockHash>,
+        txid: &bitcoin::Txid
     ) -> Result<json::GetRawTransactionResult> {
-        let mut args = [into_json(txid)?, into_json(true)?, opt_into_json(block_hash)?];
+        let mut args = [into_json(txid)?, into_json(true)?];
         self.call("getrawtransaction", handle_defaults(&mut args, &[null()]))
     }
 

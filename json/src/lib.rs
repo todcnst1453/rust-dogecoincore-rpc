@@ -245,7 +245,6 @@ pub struct GetBlockHeaderResult {
     pub difficulty: f64,
     #[serde(with = "crate::serde_hex")]
     pub chainwork: Vec<u8>,
-    pub n_tx: usize,
     #[serde(rename = "previousblockhash")]
     pub previous_block_hash: Option<bitcoin::BlockHash>,
     #[serde(rename = "nextblockhash")]
