@@ -523,7 +523,6 @@ pub struct GetMiningInfoResult {
     #[serde(rename = "pooledtx")]
     pub pooled_tx: usize,
     pub chain: String,
-    pub warnings: String,
 }
 
 #[derive(Clone, PartialEq, Eq, Debug, Deserialize, Serialize)]
@@ -1047,9 +1046,6 @@ pub struct GetBlockchainInfoResult {
     pub automatic_pruning: Option<bool>,
     /// The target size used by pruning (only present if automatic pruning is enabled)
     pub prune_target_size: Option<u64>,
-    /// Status of softforks in progress
-    #[serde(default)]
-    pub softforks: HashMap<String, Softfork>,
     /// Any network and blockchain warnings.
     pub warnings: String,
 }
