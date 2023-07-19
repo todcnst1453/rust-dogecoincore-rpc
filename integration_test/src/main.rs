@@ -8,16 +8,12 @@
 //! to test the serialization of arguments and deserialization of responses.
 //!
 
-#![deny(unused)]
+//#![deny(unused)]
 
 #[macro_use]
 extern crate lazy_static;
 
 use std::collections::HashMap;
-
-use bitcoincore_rpc::json;
-use bitcoincore_rpc::jsonrpc::error::Error as JsonRpcError;
-use bitcoincore_rpc::{Auth, Client, Error, RpcApi};
 
 use crate::json::BlockStatsFields as BsFields;
 use bitcoin::consensus::encode::{deserialize, serialize};
@@ -25,12 +21,16 @@ use bitcoin::hashes::hex::{FromHex, ToHex};
 use bitcoin::hashes::Hash;
 use bitcoin::secp256k1;
 use bitcoin::{
-    Address, Amount, EcdsaSighashType, Network, OutPoint, PackedLockTime, PrivateKey, Script,
-    Sequence, SignedAmount, Transaction, TxIn, TxOut, Txid, Witness,
+    Address, Amount, BlockHash, EcdsaSighashType, Network, OutPoint, PackedLockTime, PrivateKey,
+    Script, Sequence, SignedAmount, Transaction, TxIn, TxOut, Txid, Witness,
 };
 use bitcoincore_rpc::bitcoincore_rpc_json::{
     GetBlockTemplateModes, GetBlockTemplateRules, ScanTxOutRequest,
 };
+use bitcoincore_rpc::json;
+use bitcoincore_rpc::jsonrpc::error::Error as JsonRpcError;
+use bitcoincore_rpc::{Auth, Client, Error, RpcApi};
+use std::str::FromStr;
 
 lazy_static! {
     static ref SECP: secp256k1::Secp256k1<secp256k1::All> = secp256k1::Secp256k1::new();
@@ -107,12 +107,15 @@ fn sbtc<F: Into<f64>>(btc: F) -> SignedAmount {
 
 fn get_rpc_url() -> String {
     //return std::env::var("RPC_URL").expect("RPC_URL must be set");
-    return "192.168.31.200:22555".to_string();
+    return "127.0.0.1:22555".to_string();
 }
 
 fn get_auth() -> bitcoincore_rpc::Auth {
-    let cookie = "/Users/taoluo/Documents/cookie".to_string();
-    return Auth::CookieFile(cookie.into());
+    let user = "".to_string();
+    let password = "".to_string();
+    // let cookie = "/Users/taoluo/Documents/cookie".to_string();
+    // return Auth::CookieFile(cookie.into());
+    return Auth::UserPass(user.clone(), password.clone());
     // if let Ok(cookie) = std::env::var("RPC_COOKIE") {
     //     return Auth::CookieFile(cookie.into());
     // } else if let Ok(user) = std::env::var("RPC_USER") {
@@ -124,108 +127,112 @@ fn get_auth() -> bitcoincore_rpc::Auth {
 
 fn main() {
     log::set_logger(&LOGGER).map(|()| log::set_max_level(log::LevelFilter::max())).unwrap();
-    
+
     let rpc_url = format!("{}", get_rpc_url());
     let auth = get_auth();
     println!("{:?}", auth);
     let cl = Client::new(&rpc_url, auth.clone()).unwrap();
     println!("{:?}", cl);
-    test_list_transactions(&cl);
+    //test_list_transactions(&cl);
     //let cl = Client::new(&rpc_url, auth.clone()).context("failed to connect to RPC URL")?;
     test_get_block_count(&cl);
     println!("finish GETBLOCKCOUNT");
-    test_get_network_info(&cl);
-    println!("finish GETNETWORKINFO");
-    //test_get_blockchain_info(&cl);
-    //unsafe { VERSION = cl.version().unwrap() };
-    //println!("Version: {}", version());
-    //test_get_new_address(&cl);
-    //cl.create_wallet("testwallet", None, None, None, None).unwrap();
-    
-    
-    test_get_blockchain_info(&cl);
-    test_get_mining_info(&cl);
-    test_get_new_address(&cl);
-    test_dump_private_key(&cl);
-    //test_generate(&cl);
-    test_list_unspent(&cl);
-    test_get_network_info(&cl);
-    test_get_balance_generate_to_address(&cl);
-    test_get_balances_generate_to_address(&cl);
-    test_get_best_block_hash(&cl);
-    test_get_block_count(&cl);
-    test_get_block_hash(&cl);
-    test_get_block(&cl);
-    test_get_block_header_get_block_header_info(&cl);
-    test_get_block_stats(&cl);
-    test_get_block_stats_fields(&cl);
-    test_get_address_info(&cl);
-    test_set_label(&cl);
-    test_send_to_address(&cl);
-    test_get_received_by_address(&cl);
-    test_list_unspent(&cl);
-    test_get_difficulty(&cl);
-    test_get_connection_count(&cl);
-    test_get_raw_transaction(&cl);
-    test_get_raw_mempool(&cl);
-    test_get_raw_mempool_verbose(&cl);
-    test_get_transaction(&cl);
-    test_list_transactions(&cl);
-    test_list_since_block(&cl);
-    test_get_tx_out(&cl);
-    test_get_tx_out_proof(&cl);
-    test_get_mempool_entry(&cl);
-    test_lock_unspent_unlock_unspent(&cl);
-    test_get_block_filter(&cl);
-    test_sign_raw_transaction_with_send_raw_transaction(&cl);
-    test_invalidate_block_reconsider_block(&cl);
-    test_key_pool_refill(&cl);
-    test_create_raw_transaction(&cl);
-    test_decode_raw_transaction(&cl);
-    test_fund_raw_transaction(&cl);
-    test_test_mempool_accept(&cl);
-    test_wallet_create_funded_psbt(&cl);
-    test_wallet_process_psbt(&cl);
-    test_join_psbt(&cl);
-    test_combine_psbt(&cl);
-    test_combine_raw_transaction(&cl);
-    test_create_psbt(&cl);
-    test_finalize_psbt(&cl);
-    test_list_received_by_address(&cl);
-    test_scantxoutset(&cl);
-    test_import_public_key(&cl);
-    test_import_priv_key(&cl);
-    test_import_address(&cl);
-    test_import_address_script(&cl);
-    test_estimate_smart_fee(&cl);
-    test_ping(&cl);
-    test_get_peer_info(&cl);
-    test_rescan_blockchain(&cl);
-    test_create_wallet(&cl);
-    test_get_tx_out_set_info(&cl);
-    test_get_chain_tips(&cl);
-    test_get_net_totals(&cl);
-    test_get_network_hash_ps(&cl);
-    test_uptime(&cl);
-    test_getblocktemplate(&cl);
-    //TODO import_multi(
-    //TODO verify_message(
-    //TODO wait_for_new_block(&self, timeout: u64) -> Result<json::BlockRef> {
-    //TODO wait_for_block(
-    //TODO get_descriptor_info(&self, desc: &str) -> Result<json::GetDescriptorInfoResult> {
-    //TODO derive_addresses(&self, descriptor: &str, range: Option<[u32; 2]>) -> Result<Vec<Address>> {
-    //TODO encrypt_wallet(&self, passphrase: &str) -> Result<()> {
-    //TODO get_by_id<T: queryable::Queryable<Self>>(
-    //TODO add_multisig_address(
-    //TODO load_wallet(&self, wallet: &str) -> Result<json::LoadWalletResult> {
-    //TODO unload_wallet(&self, wallet: Option<&str>) -> Result<()> {
-    //TODO backup_wallet(&self, destination: Option<&str>) -> Result<()> {
-    test_add_node(&cl);
-    test_get_added_node_info(&cl);
-    test_get_node_addresses(&cl);
-    test_disconnect_node(&cl);
-    test_add_ban(&cl);
-    test_set_network_active(&cl);
+    let txid =
+        bitcoin::Txid::from_str("60fb4ec263d6fb0a4fe99fd879d5fc61cfcbcbfa482a5196caa2ad3318654873")
+            .unwrap();
+    let info = cl.get_raw_transaction_info(&txid).unwrap();
+    println!("{:?}", info);
+    // test_get_network_info(&cl);
+    // println!("finish GETNETWORKINFO");
+    // //test_get_blockchain_info(&cl);
+    // //unsafe { VERSION = cl.version().unwrap() };
+    // //println!("Version: {}", version());
+    // //test_get_new_address(&cl);
+    // //cl.create_wallet("testwallet", None, None, None, None).unwrap();
+
+    // test_get_blockchain_info(&cl);
+    // test_get_mining_info(&cl);
+    // test_get_new_address(&cl);
+    // test_dump_private_key(&cl);
+    // //test_generate(&cl);
+    // test_list_unspent(&cl);
+    // test_get_network_info(&cl);
+    // test_get_balance_generate_to_address(&cl);
+    // test_get_balances_generate_to_address(&cl);
+    // test_get_best_block_hash(&cl);
+    // test_get_block_count(&cl);
+    // test_get_block_hash(&cl);
+    // test_get_block(&cl);
+    // test_get_block_header_get_block_header_info(&cl);
+    // test_get_block_stats(&cl);
+    // test_get_block_stats_fields(&cl);
+    // test_get_address_info(&cl);
+    // test_set_label(&cl);
+    // test_send_to_address(&cl);
+    // test_get_received_by_address(&cl);
+    // test_list_unspent(&cl);
+    // test_get_difficulty(&cl);
+    // test_get_connection_count(&cl);
+    // test_get_raw_transaction(&cl);
+    // test_get_raw_mempool(&cl);
+    // test_get_raw_mempool_verbose(&cl);
+    // test_get_transaction(&cl);
+    // test_list_transactions(&cl);
+    // test_list_since_block(&cl);
+    // test_get_tx_out(&cl);
+    // test_get_tx_out_proof(&cl);
+    // test_get_mempool_entry(&cl);
+    // test_lock_unspent_unlock_unspent(&cl);
+    // test_get_block_filter(&cl);
+    // test_sign_raw_transaction_with_send_raw_transaction(&cl);
+    // test_invalidate_block_reconsider_block(&cl);
+    // test_key_pool_refill(&cl);
+    // test_create_raw_transaction(&cl);
+    // test_decode_raw_transaction(&cl);
+    // test_fund_raw_transaction(&cl);
+    // test_test_mempool_accept(&cl);
+    // test_wallet_create_funded_psbt(&cl);
+    // test_wallet_process_psbt(&cl);
+    // test_join_psbt(&cl);
+    // test_combine_psbt(&cl);
+    // test_combine_raw_transaction(&cl);
+    // test_create_psbt(&cl);
+    // test_finalize_psbt(&cl);
+    // test_list_received_by_address(&cl);
+    // test_scantxoutset(&cl);
+    // test_import_public_key(&cl);
+    // test_import_priv_key(&cl);
+    // test_import_address(&cl);
+    // test_import_address_script(&cl);
+    // test_estimate_smart_fee(&cl);
+    // test_ping(&cl);
+    // test_get_peer_info(&cl);
+    // test_rescan_blockchain(&cl);
+    // test_create_wallet(&cl);
+    // test_get_tx_out_set_info(&cl);
+    // test_get_chain_tips(&cl);
+    // test_get_net_totals(&cl);
+    // test_get_network_hash_ps(&cl);
+    // test_uptime(&cl);
+    // test_getblocktemplate(&cl);
+    // //TODO import_multi(
+    // //TODO verify_message(
+    // //TODO wait_for_new_block(&self, timeout: u64) -> Result<json::BlockRef> {
+    // //TODO wait_for_block(
+    // //TODO get_descriptor_info(&self, desc: &str) -> Result<json::GetDescriptorInfoResult> {
+    // //TODO derive_addresses(&self, descriptor: &str, range: Option<[u32; 2]>) -> Result<Vec<Address>> {
+    // //TODO encrypt_wallet(&self, passphrase: &str) -> Result<()> {
+    // //TODO get_by_id<T: queryable::Queryable<Self>>(
+    // //TODO add_multisig_address(
+    // //TODO load_wallet(&self, wallet: &str) -> Result<json::LoadWalletResult> {
+    // //TODO unload_wallet(&self, wallet: Option<&str>) -> Result<()> {
+    // //TODO backup_wallet(&self, destination: Option<&str>) -> Result<()> {
+    // test_add_node(&cl);
+    // test_get_added_node_info(&cl);
+    // test_get_node_addresses(&cl);
+    // test_disconnect_node(&cl);
+    // test_add_ban(&cl);
+    // test_set_network_active(&cl);
     test_stop(cl);
 }
 
@@ -246,7 +253,6 @@ fn test_get_blockchain_info(cl: &Client) {
 
 fn test_get_new_address(cl: &Client) {
     cl.get_new_address(None, Some(json::AddressType::Legacy)).unwrap();
-    
 }
 
 fn test_dump_private_key(cl: &Client) {

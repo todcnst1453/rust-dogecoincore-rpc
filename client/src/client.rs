@@ -414,26 +414,20 @@ pub trait RpcApi: Sized {
         self.call("getblockstats", &[height.into(), fields.into()])
     }
 
-    fn get_raw_transaction(
-        &self,
-        txid: &bitcoin::Txid
-    ) -> Result<Transaction> {
+    fn get_raw_transaction(&self, txid: &bitcoin::Txid) -> Result<Transaction> {
         let mut args = [into_json(txid)?, into_json(false)?];
         let hex: String = self.call("getrawtransaction", handle_defaults(&mut args, &[null()]))?;
         deserialize_hex(&hex)
     }
 
-    fn get_raw_transaction_hex(
-        &self,
-        txid: &bitcoin::Txid
-    ) -> Result<String> {
+    fn get_raw_transaction_hex(&self, txid: &bitcoin::Txid) -> Result<String> {
         let mut args = [into_json(txid)?, into_json(false)?];
         self.call("getrawtransaction", handle_defaults(&mut args, &[null()]))
     }
 
     fn get_raw_transaction_info(
         &self,
-        txid: &bitcoin::Txid
+        txid: &bitcoin::Txid,
     ) -> Result<json::GetRawTransactionResult> {
         let mut args = [into_json(txid)?, into_json(true)?];
         self.call("getrawtransaction", handle_defaults(&mut args, &[null()]))
